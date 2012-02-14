@@ -23,6 +23,7 @@ class BatCave::Command::Add < Clamp::Command
       if File.exists?(config)
         found = true
         use(path)
+        break
       end
     end
 
@@ -39,12 +40,14 @@ class BatCave::Command::Add < Clamp::Command
       localpath = File.join(project_root, path[dir.length + 1 .. -1])
       next if localpath == "THING"
 
-      if localpath.include?("{name}") and @name.nil?
-        raise "Path requires '--name' flag to be set: #{localpath.inspect}"
+      if localpath.include?("{name}")
+        if @name.nil?
+          raise "Path requires '--name' flag to be set: #{localpath.inspect}"
+        end
+        localpath.gsub!("{name}", @name)
       end
 
       # Replace '{...}' in localpath
-      localpath.gsub("{name}", @name)
 
       # TODO(sissel): if this is a directory, create it.
       # TODO(sissel): if this a file, copy it.
