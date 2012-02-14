@@ -37,8 +37,8 @@ class BatCave::Command::Add < Clamp::Command
     paths = Dir.glob(File.join(dir, "**", "*"))
 
     paths.each do |path|
+      next if path == config # skip the 'THING' file
       localpath = File.join(project_root, path[dir.length + 1 .. -1])
-      next if localpath == "THING"
 
       if localpath.include?("{name}")
         if @name.nil?
