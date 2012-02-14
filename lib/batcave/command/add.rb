@@ -6,12 +6,17 @@ require "fileutils"
 class BatCave::Command::Add < Clamp::Command
   include BatCave::Support::Git
 
-  parameter "THING", "The thing to add to your batcave", :attribute_name => :thing
+  option ["-n", "--name"], "NAME",
+    "the application or library name", :attribute_name => :name
+
+  parameter "THING",
+    "The thing to add to your batcave", :attribute_name => :thing
 
   def execute
     # TODO(sissel): Move this stuff into a proper batcave library
 
     found = false
+    # look for the 'thing/' or if it's a directory try 'thing/self/'
     [ @thing, File.join(@thing, "self") ].each do |thing|
       path = File.join(BatCave::THINGSDIR, thing)
       config = File.join(path, "THING")
@@ -29,15 +34,17 @@ class BatCave::Command::Add < Clamp::Command
   def use(dir)
     config = File.join(dir, "THING")
     paths = Dir.glob(File.join(dir, "**", "*"))
-      #.collect { |p| p[dir.length + 1 .. -1] } \
-      #.reject { |p| p == "/THING" }
-    #boilerplate = []
-    #binding.eval(File.read(config), config)
 
-    # TODO(sissel): Find the git root.
     paths.each do |path|
       localpath = File.join(project_root, path[dir.length + 1 .. -1])
       next if localpath == "THING"
+
+      if localpath.include?("{name}") and @name.nil?
+        raise "Path requires '--name' flag to be set: #{localpath.inspect}"
+      end
+
+      # Replace '{...}' in localpath
+      localpath.gsub("{name}", @name)
 
       # TODO(sissel): if this is a directory, create it.
       # TODO(sissel): if this a file, copy it.
