@@ -1,8 +1,11 @@
 require "clamp"
 require "batcave/namespace"
+require "batcave/support/git"
 require "fileutils"
 
 class BatCave::Command::Add < Clamp::Command
+  include BatCave::Support::Git
+
   parameter "THING", "The thing to add to your batcave", :attribute_name => :thing
 
   def execute
@@ -33,15 +36,16 @@ class BatCave::Command::Add < Clamp::Command
 
     # TODO(sissel): Find the git root.
     paths.each do |path|
-      localpath = path[dir.length + 1 .. -1]
+      localpath = File.join(project_root, path[dir.length + 1 .. -1])
       next if localpath == "THING"
 
       # TODO(sissel): if this is a directory, create it.
       # TODO(sissel): if this a file, copy it.
-      if File.directory?(localpath)
-        FileUtils.mkdir_p(localpath)
+      if File.directory?(path)
+        FileUtils.mkdir_p(localpath) unless File.directory?(localpath)
       else
-        FileUtils.mkdir_p(File.dirname(localpath))
+        localdir = File.dirname(localpath)
+        FileUtils.mkdir_p(localdir) unless File.directory?(localdir)
         FileUtils.cp(path, localpath)
       end
     end
