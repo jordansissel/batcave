@@ -16,6 +16,10 @@ when switching between projects, the cost of context switching isn't as painful.
 Essentially, I do roughly the same activities regardless of platform or language.
 This project is an experiment in solving the above problem.
 
+Ideally it'd be sweet if this project would also manage my workstation as well
+as my projects. Dotfiles, packages, etc. I'm tired of setting this shit up or
+scripting it sideways every few months.
+
 ## Example
 
 Maybe, for example, I'm writing an HTTP library in Ruby, and I want to:
