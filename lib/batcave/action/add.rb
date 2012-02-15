@@ -30,6 +30,7 @@ class BatCave::Action::Add
 
   def execute
     config = find_thing(@thing)
+    return 1 if config == false
     dsl = BatCave::DSL.new(config, @thing, @args)
     dsl.execute
 
