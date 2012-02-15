@@ -2,7 +2,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "batcave"
-  spec.version = "0.0.2"
+  spec.version = "0.0.3"
   spec.summary = "Experiments in tools, boilerplatery, debugging, etc."
   spec.description = spec.summary
   spec.add_dependency("clamp")
