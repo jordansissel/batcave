@@ -1,2 +1,10 @@
 environment :project
+
+# Don't overwrite these files on update
+create_only [ "Gemfile", "{name}.gemspec" ]
+
+options do
+  parameter "NAME", "The name of the project", :attribute_name => :name
+end
+
 boilerplate = [ "Gemfile" ]

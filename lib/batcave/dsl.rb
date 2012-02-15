@@ -1,7 +1,8 @@
 require "batcave/namespace"
 require "batcave/support/envpath"
-require "fileutils"
-require "cabin"
+require "fileutils" # stdlib
+require "cabin" # gem 'cabin'
+require "erb" # stdlib
 
 # TODO(sissel): DSL is a poor name for this class. Fix it later.
 # TODO(sissel): Split the 'THING' processor from the 'Thing' instances
@@ -15,7 +16,6 @@ class BatCave::DSL
     @args = args
     @thing = thing
     @configfile = configfile
-    @sourcedir = File.dirname(@configfile)
     @logger = Cabin::Channel.get("batcave")
 
     # Default environment is project.
@@ -23,6 +23,8 @@ class BatCave::DSL
     # Update all files by default
     @create_only = []
 
+    @target ||= path(@environment)
+    @sourcedir = File.dirname(@configfile)
     @sync = true
 
     # Make this 'thing' argument into a command by
@@ -139,13 +141,19 @@ class BatCave::DSL
       @logger.error("Can't sync, no source defined")
       return
     end
-    @target ||= path(@environment)
 
     paths = Dir.glob(File.join(@sourcedir, "**", "*"), File::FNM_DOTMATCH)
     expand(paths) do |source, target|
       next if source == @configfile # skip the 'THING' file
       originalpath = source[@sourcedir.length + 1 .. -1]
       localpath = File.join(path(@environment), target[@sourcedir.length + 1 .. -1])
+
+      if localpath =~ /\.erb$/
+        localpath = localpath[0...-4]
+        use_erb = true
+      else
+        use_erb = false
+      end
 
       # TODO(sissel): if this is a directory, create it.
       # TODO(sissel): if this a file, copy it.
@@ -158,8 +166,19 @@ class BatCave::DSL
         if @create_only.include?(originalpath) and File.exists?(localpath)
           @logger.info("Skipping existing file due to 'create_only': #{localpath}")
         else 
-          @logger.info("Copying", :source => source, :target => localpath)
-          FileUtils.cp(source, localpath)
+          if use_erb
+            erb = ERB.new(File.read(source))
+            @logger.info("Generating ", :source => source, :target => localpath)
+            File.open(localpath, "w+") do |fd|
+              # Make all ivars available as names in the templates, so I can just do
+              # <%= name %> instead of <%= @name %>
+              ivar = IvarBinding.new(self)
+              fd.write(erb.result(ivar.binding))
+            end
+          else
+            @logger.info("Copying", :source => source, :target => localpath)
+            FileUtils.cp(source, localpath)
+          end
         end
       end
     end
@@ -195,6 +214,41 @@ class BatCave::DSL
   def nosync
     @sync = false
   end # def nosync
+
+  # Metaprogramming to provide instance variables from a class as
+  # local-variable-like things in a binding. For use with ERB and such.
+  #
+  # This is a fun hack.
+  class IvarBinding
+    def initialize(object)
+      # Make a new Object subclass
+      klass = Class.new(Object)
+
+      # Find all instance variables in 'object' and make
+      # them methods in our new class. Each method will
+      # simply return that named instance variable.
+      object.instance_variables.each do |ivar|
+        meth = ivar.to_s.gsub("@", "")
+        klass.instance_eval do
+          define_method(meth) do
+            object.instance_variable_get(ivar)
+          end
+        end
+      end
+
+      # Make a method that returns the binding for this class
+      klass.instance_eval do
+        define_method(:_binding) do
+          return binding
+        end
+      end
+      @instance = klass.new
+    end # def initialize
+
+    def binding
+      return @instance._binding
+    end # def binding
+  end # class IvarBinding
 
   public(:initialize, :execute, :environment, :thing, :to_hash)
 end # class BatCave::DSL

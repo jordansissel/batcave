@@ -16,7 +16,6 @@ class BatCave::Action::Add
   end # def initialize
 
   def find_thing(thing)
-    found = false
     # look for the 'thing/' or if it's a directory try 'thing/self/'
     [ @thing, File.join(@thing, "self") ].each do |thing|
       path = File.join(BatCave::THINGSDIR, thing)
