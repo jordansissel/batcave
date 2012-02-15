@@ -3,6 +3,8 @@ require "batcave/support/envpath"
 require "fileutils"
 require "cabin"
 
+# TODO(sissel): DSL is a poor name for this class. Fix it later.
+# TODO(sissel): Split the 'THING' processor from the 'Thing' instances
 class BatCave::DSL
   include BatCave::Support::Git
   include BatCave::Support::EnvPath

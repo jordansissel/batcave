@@ -4,5 +4,3 @@ end
 
 environment :user
 source @source
-#target ENV["HOME"]
-target "/tmp/homesync"
