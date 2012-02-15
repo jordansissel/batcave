@@ -20,6 +20,8 @@ Ideally it'd be sweet if this project would also manage my workstation as well
 as my projects. Dotfiles, packages, etc. I'm tired of setting this shit up or
 scripting it sideways every few months.
 
+This project may end up looking a lot like an IDE plus some config management.
+
 ## Example
 
 Maybe, for example, I'm writing an HTTP library in Ruby, and I want to:
