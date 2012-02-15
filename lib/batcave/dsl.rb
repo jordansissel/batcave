@@ -25,8 +25,9 @@ class BatCave::DSL
 
     @sync = true
 
-    # Make this 'thing' argument into a command
-    @command = Clamp::Command.new("<internal dsl thing>")
+    # Make this 'thing' argument into a command by
+    # dynamically making a new subclass of Clamp::Command
+    @command = Class.new(Clamp::Command).new("<internal dsl thing>")
     class << @command
       def execute
         # nothing to do, we just want to parse flags.
