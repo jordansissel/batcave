@@ -1,0 +1,8 @@
+options do
+  parameter "SOURCE", "The source of your dotfiles (git repo, etc?)", :attribute_name => :source
+end
+
+environment :user
+source @source
+#target ENV["HOME"]
+target "/tmp/homesync"
