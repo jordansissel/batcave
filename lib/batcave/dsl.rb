@@ -150,6 +150,7 @@ class BatCave::DSL
 
       if localpath =~ /\.erb$/
         localpath = localpath[0...-4]
+        originalpath = originalpath[0...-4]
         use_erb = true
       else
         use_erb = false
