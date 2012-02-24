@@ -96,7 +96,8 @@ class BatCave::DSL
   #
   # A {foo} will check both @foo and @foos
   def expand(paths, &block)
-    skip_re = /(^|\/)\.(\.|git|svn)/
+    # Skip .svn and .git directories
+    skip_re = %r{(^|/)\.(\.|git|svn)(/|$)}
     paths.each do |path|
       next if skip_re.match(path)
       # find all {...} in the string
@@ -143,6 +144,7 @@ class BatCave::DSL
     end
 
     paths = Dir.glob(File.join(@sourcedir, "**", "*"), File::FNM_DOTMATCH)
+
     expand(paths) do |source, target|
       next if source == @configfile # skip the 'THING' file
       originalpath = source[@sourcedir.length + 1 .. -1]
@@ -156,8 +158,6 @@ class BatCave::DSL
         use_erb = false
       end
 
-      # TODO(sissel): if this is a directory, create it.
-      # TODO(sissel): if this a file, copy it.
       if File.directory?(source)
         FileUtils.mkdir_p(localpath) unless File.directory?(localpath)
       else
