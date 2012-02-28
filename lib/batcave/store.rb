@@ -70,5 +70,5 @@ class BatCave::Store
     # Handle empty manifest. (YAML.load returns false for empty files)
     manifest["things"] ||= {}
     return manifest
-  end # def manifest
+  end # def load
 end # class BatCave::Store

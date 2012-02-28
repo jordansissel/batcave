@@ -8,9 +8,6 @@ class BatCave::Main < Clamp::Command
   option ["-v", "--verbose"], :flag, "enable verbose logging" do
     require "logger"
     logger = Cabin::Channel.get("batcave")
-    p Cabin::Channel.get("batcave").object_id
-    p Cabin::Channel.get("batcave").object_id
-    p Cabin::Channel.get("batcave").object_id
     logger.subscribe(Logger.new(STDOUT))
     logger.level = :info
   end
