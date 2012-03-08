@@ -35,7 +35,7 @@ $(GEM):
 test-package: $(GEM)
 	# Sometimes 'gem build' makes a faulty gem.
 	gem unpack $(GEM)
-	rm -rf ftw-$(VERSION)/
+	rm -rf $(NAME)-$(VERSION)/
 
 .PHONY: publish
 publish: test-package
@@ -44,3 +44,7 @@ publish: test-package
 .PHONY: install
 install: $(GEM)
 	gem install $(GEM)
+
+.PHONY: clean
+clean:
+	-rm -rf .yardoc $(GEM) $(NAME)-$(VERSION)/
