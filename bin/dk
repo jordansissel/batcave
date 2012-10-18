@@ -5,4 +5,4 @@ require "clamp"
 
 $: << File.join(File.dirname(__FILE__), "..", "lib")
 require "batcave/main"
-BatCave::Main.run
+exit(BatCave::Main.run)
