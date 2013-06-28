@@ -3,6 +3,7 @@ require "batcave/namespace"
 require "batcave/command/add"
 require "batcave/command/update"
 require "batcave/command/test"
+require "batcave/command/smart-edit"
 require "cabin"
 
 class BatCave::Main < Clamp::Command
@@ -22,4 +23,8 @@ class BatCave::Main < Clamp::Command
 
   # Run a file's tests.
   subcommand "test", "Run the tests for a given file", BatCave::Command::Test
+
+  # Figure out what file to edit and do it.
+  subcommand "smart-edit", "Scan the screen for a file to edit",
+    BatCave::Command::SmartEdit
 end
