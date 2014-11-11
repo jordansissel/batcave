@@ -4,6 +4,7 @@ require "batcave/command/add"
 require "batcave/command/update"
 require "batcave/command/test"
 require "batcave/command/smart-edit"
+require "batcave/command/github-issue-milestone"
 require "cabin"
 
 class BatCave::Main < Clamp::Command
@@ -25,6 +26,7 @@ class BatCave::Main < Clamp::Command
   subcommand "test", "Run the tests for a given file", BatCave::Command::Test
 
   # Figure out what file to edit and do it.
-  subcommand "smart-edit", "Scan the screen for a file to edit",
-    BatCave::Command::SmartEdit
+  subcommand "smart-edit", "Scan the screen for a file to edit", BatCave::Command::SmartEdit
+
+  subcommand "github-issue-milestone", "Set a milestone on an issue", BatCave::Command::GithubIssueMilestone
 end
