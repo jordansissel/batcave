@@ -12,7 +12,7 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
   option "--override", :flag, "Override milestone on an issue if one is already set.", :default => false
 
   parameter "USER/PROJECT", "The user/project repo name on github.", :attribute_name => "repo"
-  parameter "ISSUE", "The issue number", :attribute_name => :issue_number
+  parameter "ISSUE", "The issue number. Can be '-' to read issue numbers from stdin.", :attribute_name => :issue_number
   parameter "MILESTONE", "The milestone to set", :attribute_name => :milestone_name
 
   def logger
@@ -23,7 +23,6 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
     logger.subscribe(STDOUT)
     logger.level = log_level
     logger[:repo] = repo
-    logger[:issue] = issue_number
     logger[:milestone] = milestone_name
 
     # verify milestone exists
@@ -33,19 +32,16 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
       raise "No such milestone '#{milestone_name}' found in #{repo}"
     end
     milestone_number = milestones.find(&selector)["number"]
+
     @logger.debug("Found milestone number", :number => milestone_number)
 
-    # TODO(sissel): Verify issue exists
-    issue = client.issue(repo, issue_number)
-    if issue.milestone
-      if !override? && issue.milestone.title != milestone_name
-        raise "Milestone is already set on '#{repo}' issue #{issue_number}"
-      else
-        @logger.info("Milestone already set on issue, but override is given, so I will override it.", :current_milestone => issue.milestone.title)
+    if issue_number == "-"
+      STDIN.each_line do |issue_number|
+        set_milestone(repo, issue_number.chomp, milestone_number)
       end
+    else
+      set_milestone(repo, issue_number, milestone_number)
     end
-    client.update_issue(repo, issue_number, issue.title, issue.body, :milestone => milestone_number)
-    logger.debug("Updated issue milestone successfully", :repo => repo)
     0
   rescue RuntimeError => e
     puts "Error: #{e}"
@@ -56,8 +52,30 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
     else
       logger.error("An error occurred", :exception => e)
     end
-
     1
+  end # def execute
+
+  def set_milestone(repo, issue_number, milestone_number)
+    logger[:issue] = issue_number
+
+    # TODO(sissel): Verify issue exists
+    issue = client.issue(repo, issue_number)
+    if issue.milestone
+      if issue.milestone.title == milestone_name
+        @logger.debug("Skipping because milestone is already set", :current_milestone => issue.milestone.title)
+        return
+      end
+      if issue.milestone.title != milestone_name
+        if override?
+          @logger.info("Milestone already set on issue, but override is given, so I will override it.", :current_milestone => issue.milestone.title)
+        else
+          @logger.info("Milestone already set on issue, skipping this issue.", :current_milestone => issue.milestone.title)
+          #raise "Milestone is already set on '#{repo}' issue #{issue_number}"
+        end
+      end
+    end
+    client.update_issue(repo, issue_number, issue.title, issue.body, :milestone => milestone_number)
+    logger.debug("Updated issue milestone successfully", :repo => repo)
   end # def execute
 
   def client
