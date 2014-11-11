@@ -33,7 +33,7 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
     end
     milestone_number = milestones.find(&selector)["number"]
 
-    @logger.debug("Found milestone number", :number => milestone_number)
+    logger.debug("Found milestone number", :number => milestone_number)
 
     if issue_number == "-"
       STDIN.each_line do |issue_number|
@@ -62,20 +62,20 @@ class BatCave::Command::GithubIssueMilestone < Clamp::Command
     issue = client.issue(repo, issue_number)
     if issue.milestone
       if issue.milestone.title == milestone_name
-        @logger.debug("Skipping because milestone is already set", :current_milestone => issue.milestone.title)
+        logger.debug("Skipping because milestone is already set", :current_milestone => issue.milestone.title)
         return
       end
       if issue.milestone.title != milestone_name
         if override?
-          @logger.info("Milestone already set on issue, but override is given, so I will override it.", :current_milestone => issue.milestone.title)
+          logger.info("Milestone already set on issue, but override is given, so I will override it.", :current_milestone => issue.milestone.title)
         else
-          @logger.info("Milestone already set on issue, skipping this issue.", :current_milestone => issue.milestone.title)
+          logger.info("Milestone already set on issue, skipping this issue.", :current_milestone => issue.milestone.title)
           #raise "Milestone is already set on '#{repo}' issue #{issue_number}"
         end
       end
     end
     client.update_issue(repo, issue_number, issue.title, issue.body, :milestone => milestone_number)
-    logger.debug("Updated issue milestone successfully", :repo => repo)
+    logger.info("Updated issue milestone successfully", :repo => repo)
   end # def execute
 
   def client
