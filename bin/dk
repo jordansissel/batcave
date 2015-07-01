@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-
-require "rubygems"
-require "clamp"
-
-$: << File.join(File.dirname(__FILE__), "..", "lib")
-require "batcave/main"
-exit(BatCave::Main.run || 0)

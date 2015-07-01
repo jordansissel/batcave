@@ -1,8 +1,0 @@
-environment :project
-
-# Don't overwrite these files on update
-create_only [ "src/{name}/{name}.go" ]
-
-options do
-  parameter "NAMES ...", "The name of the project", :attribute_name => :names
-end

@@ -1,7 +1,0 @@
-environment :user
-
-options do
-  parameter "COMMAND", "The command to run", :attribute_name => :command
-end
-
-system(@command)
