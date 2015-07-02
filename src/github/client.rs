@@ -1,16 +1,21 @@
-extern crate rustc_serialize;
 use hyper;
 //use hyper::header;
 //use rustc_serialize::json::{self, Json};
 //use rustc_serialize::Decodable;
-//use hyper::mime;
+use github;
+use hyper::mime;
 
 pub struct Client {
   http: hyper::Client,
-  user_agent: String,
+  pub user_agent: String,
 }
 
-pub struct ListRepositoriesRequest;
+fn github_accept_mime() -> mime::Mime {
+  // I couldn't figure out how to load the `mime!` macro, and
+  // further, I couldn't figure out how to set this as a const. Oh well.
+  let m: mime::Mime = "application/vnd.github.v4+json".parse().unwrap();
+  m
+}
 
 impl Client {
   pub fn new() -> Client {
@@ -20,15 +25,34 @@ impl Client {
     }
   }
 
-  //let rb = client.get("https://api.github.com/orgs/logstash-plugins/repos")
-           //.header(header::Accept(vec![header::qitem(github_json_mime)]))
-           //.header(header::UserAgent("learning-is-fun 0.1".to_owned()));
+  pub fn get(self, path: String) -> hyper::error::Result<hyper::client::response::Response> {
+    let url = format!("https://api.github.com:443/{}", path);
+
+    //println!("GET {}", url);
+    let request = self.http.get(&url)
+      .header(hyper::header::Accept(vec![hyper::header::qitem(github_accept_mime())]))
+      .header(hyper::header::UserAgent(self.user_agent));
+    request.send()
+  }
+
+  pub fn repositories(self, owner: String) { // -> Iter<Repository> ?
+    let user = github::user::User::with_name(owner);
+    match user.repositories(self) {
+      Ok(repositories) => { 
+        for r in repositories {
+          println!("{}", r.full_name);
+        }
+      },
+      Err(err) => {
+        panic!("Error: {}", err);
+      }
+    }
+  }
 }
 
 #[cfg(test)]
 mod test {
   use github;
-  use hyper::client;
 
   #[test]
   fn test_new_client() {
