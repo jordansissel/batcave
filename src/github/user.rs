@@ -1,5 +1,4 @@
 use github;
-use hyper;
 
 #[derive(RustcDecodable, Debug)]
 pub struct User {
@@ -20,9 +19,9 @@ impl User {
     }
   }
 
-  pub fn repositories(self, client: github::client::Client) -> Result<Vec<github::repository::Repository>, hyper::error::Error> {
+  pub fn repositories(self, client: github::client::Client) -> Result<Vec<github::repository::Repository>, github::body::ParseError> {
     let response = client.get(format!("users/{}/repos", self.name)).unwrap();
-    let result: Result<Vec<github::repository::Repository>, hyper::error::Error> = github::body::parse(response);
+    let result: Result<Vec<github::repository::Repository>, github::body::ParseError> = github::body::parse(response);
     result
   }
 }
