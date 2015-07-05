@@ -1,6 +1,8 @@
 pub mod client;
 pub mod user;
 pub mod repository;
+pub mod issue;
+pub mod label;
 mod body;
 
 // Entry points:

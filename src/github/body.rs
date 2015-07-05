@@ -49,6 +49,7 @@ impl fmt::Display for ParseError {
 
 pub fn parse<T: Read, R: Decodable>(mut r: T) -> Result<R, ParseError> {
   let item = try!(Json::from_reader(&mut r));
+  //println!("JSON: {:?}", item);
   let mut decoder = Decoder::new(item);
   let result: R = try!(Decodable::decode(&mut decoder));
   Ok(result)
