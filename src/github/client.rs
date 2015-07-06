@@ -1,7 +1,4 @@
 use hyper;
-//use hyper::header;
-//use rustc_serialize::json::{self, Json};
-//use rustc_serialize::Decodable;
 use github;
 use hyper::mime;
 
@@ -47,17 +44,5 @@ impl Client {
         panic!("Error: {}", err);
       }
     }
-  }
-}
-
-#[cfg(test)]
-mod test {
-  use github;
-
-  #[test]
-  fn test_new_client() {
-    let gh = github::client::Client::new();
-    assert_eq!(gh.user_agent, "test 1".to_string());
-    let _ = gh.http.get("http://localhost:1234");
   }
 }
